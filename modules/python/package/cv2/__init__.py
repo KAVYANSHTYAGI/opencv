@@ -20,6 +20,39 @@ except ImportError:
 # is_x64 = sys.maxsize > 2**32
 
 
+def imread_rgb(filename, flags=1):
+    """Read an image file and convert it from BGR to RGB order.
+
+    The regular :func:`imread` function in OpenCV loads color images in
+    BGR channel order which is often confusing for newcomers that expect
+    RGB ordering. This helper mirrors :func:`imread` but swaps the color
+    channels so that the returned image uses the more common RGB layout.
+
+    Parameters
+    ----------
+    filename: str
+        Path to the image file to load.
+    flags: int, optional
+        Same flags as used by :func:`imread`. By default ``IMREAD_COLOR``.
+
+    Returns
+    -------
+    Mat or ``None``
+        Loaded image in RGB order, or ``None`` if the image cannot be
+        read. Images with a number of channels different from three are
+        returned unchanged.
+    """
+    img = imread(filename, flags)
+    if img is None:
+        return None
+    # only convert if image has 3 channels
+    if getattr(img, 'shape', None) is not None and len(img.shape) == 3 and img.shape[2] == 3:
+        return cvtColor(img, COLOR_BGR2RGB)
+    return img
+
+__all__.append('imread_rgb')
+
+
 def __load_extra_py_code_for_module(base, name, enable_debug_print=False):
     module_name = "{}.{}".format(__name__, name)
     export_module_name = "{}.{}".format(base, name)
