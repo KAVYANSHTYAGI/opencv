@@ -19,8 +19,28 @@ import cv2 as cv
 import os
 import itertools as it
 from contextlib import contextmanager
+import urllib.request
 
 image_extensions = ['.bmp', '.jpg', '.jpeg', '.png', '.tif', '.tiff', '.pbm', '.pgm', '.ppm']
+
+def imread_url(url, flags=cv.IMREAD_COLOR):
+    """Fetch an image from the internet and decode it as an OpenCV array.
+
+    Parameters
+    ----------
+    url : str
+        HTTP/HTTPS URL pointing to an image resource.
+    flags : int, optional
+        Imread flags as in :func:`cv.imread`.
+
+    Returns
+    -------
+    numpy.ndarray
+        Decoded image matrix or ``None`` on failure.
+    """
+    with urllib.request.urlopen(url) as resp:
+        data = np.asarray(bytearray(resp.read()), dtype=np.uint8)
+    return cv.imdecode(data, flags)
 
 class Bunch(object):
     def __init__(self, **kw):
